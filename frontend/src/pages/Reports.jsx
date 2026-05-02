@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../App.css";
+import AppSidebar from "../components/AppSidebar";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -9,8 +9,6 @@ import { saveAs } from "file-saver";
 const API = "http://localhost:4000";
 
 function Reports() {
-    const navigate = useNavigate();
-
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -93,7 +91,10 @@ function Reports() {
 
         transactions.forEach((t) => {
             const d = new Date(t.date);
-            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+                2,
+                "0"
+            )}`;
 
             if (!monthMap[key]) {
                 monthMap[key] = {
@@ -108,7 +109,9 @@ function Reports() {
             }
 
             if (t.type === "income") monthMap[key].income += Number(t.amount || 0);
-            if (t.type === "expense") monthMap[key].expenses += Number(t.amount || 0);
+            if (t.type === "expense") {
+                monthMap[key].expenses += Number(t.amount || 0);
+            }
         });
 
         return Object.values(monthMap)
@@ -121,7 +124,8 @@ function Reports() {
 
     const latestMonths = monthlyData.slice(-6);
     const current = latestMonths[latestMonths.length - 1] || null;
-    const previous = latestMonths.length > 1 ? latestMonths[latestMonths.length - 2] : null;
+    const previous =
+        latestMonths.length > 1 ? latestMonths[latestMonths.length - 2] : null;
 
     const reportSummary = useMemo(() => {
         if (!current) {
@@ -139,6 +143,7 @@ function Reports() {
 
         transactions.forEach((t) => {
             if (t.type !== "expense") return;
+
             const d = new Date(t.date);
             const currentDate = new Date(current.key + "-01");
 
@@ -147,6 +152,7 @@ function Reports() {
                 d.getFullYear() === currentDate.getFullYear()
             ) {
                 const amount = Number(t.amount || 0);
+
                 if (amount > highestExpense) {
                     highestExpense = amount;
                     highestExpenseCategory = t.category || "Other";
@@ -177,7 +183,12 @@ function Reports() {
         }
 
         const headers = ["Month", "Income", "Expenses", "Balance"];
-        const rows = exportRows.map((r) => [r.Month, r.Income, r.Expenses, r.Balance]);
+        const rows = exportRows.map((r) => [
+            r.Month,
+            r.Income,
+            r.Expenses,
+            r.Balance,
+        ]);
 
         const csvContent = [
             headers.join(","),
@@ -192,8 +203,10 @@ function Reports() {
 
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
+
         link.href = url;
         link.setAttribute("download", "cashflow-reports.csv");
+
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -209,6 +222,7 @@ function Reports() {
 
         const worksheet = XLSX.utils.json_to_sheet(exportRows);
         const workbook = XLSX.utils.book_new();
+
         XLSX.utils.book_append_sheet(workbook, worksheet, "Reports");
 
         const excelBuffer = XLSX.write(workbook, {
@@ -242,7 +256,12 @@ function Reports() {
         autoTable(doc, {
             startY: 46,
             head: [["Month", "Income", "Expenses", "Balance"]],
-            body: exportRows.map((r) => [r.Month, r.Income, r.Expenses, r.Balance]),
+            body: exportRows.map((r) => [
+                r.Month,
+                r.Income,
+                r.Expenses,
+                r.Balance,
+            ]),
             styles: { fontSize: 10 },
             headStyles: { fillColor: [37, 99, 235] },
         });
@@ -255,15 +274,7 @@ function Reports() {
         return (
             <div className="app page-enter">
                 <div className="dashboard-layout">
-                    <aside className="sidebar glass">
-                        <div className="sidebar-logo">
-                            <div className="sidebar-logo-icon">📊</div>
-                            <div>
-                                <h2>CashFlow</h2>
-                                <p>Finance App</p>
-                            </div>
-                        </div>
-                    </aside>
+                    <AppSidebar active="reports" />
 
                     <main className="dashboard-main">
                         <div className="dashboard-loader glass">
@@ -284,41 +295,7 @@ function Reports() {
             <div className="bg-orb orb3"></div>
 
             <div className="dashboard-layout">
-                <aside className="sidebar glass">
-                    <div className="sidebar-logo">
-                        <div className="sidebar-logo-icon">📊</div>
-                        <div>
-                            <h2>CashFlow</h2>
-                            <p>Finance App</p>
-                        </div>
-                    </div>
-
-                    <nav className="sidebar-menu">
-                        <button className="sidebar-item" onClick={() => navigate("/")}>
-                            Dashboard
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/transactions")}>
-                            Transactions
-                        </button>
-                        <button
-                            className="sidebar-item active"
-                            onClick={() => navigate("/reports")}
-                        >
-                            Reports
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/analytics")}>
-                            Analytics
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/settings")}>
-                            Settings
-                        </button>
-                    </nav>
-
-                    <div className="sidebar-user">
-                        <strong>{user?.name || "User"}</strong>
-                        <span>{user?.email || "No email"}</span>
-                    </div>
-                </aside>
+                <AppSidebar active="reports" />
 
                 <main className="dashboard-main">
                     <header className="topbar glass">
@@ -348,9 +325,11 @@ function Reports() {
                                         <button type="button" onClick={exportCSV}>
                                             Export CSV
                                         </button>
+
                                         <button type="button" onClick={exportExcel}>
                                             Export Excel
                                         </button>
+
                                         <button type="button" onClick={exportPDF}>
                                             Export PDF
                                         </button>
@@ -386,13 +365,19 @@ function Reports() {
                             <span>Current Month Income</span>
                             <h3 className="positive">{reportSummary.income} RON</h3>
                         </div>
+
                         <div className="glass dashboard-card">
                             <span>Current Month Expenses</span>
                             <h3 className="negative">{reportSummary.expenses} RON</h3>
                         </div>
+
                         <div className="glass dashboard-card">
                             <span>Current Month Balance</span>
-                            <h3 className={reportSummary.balance >= 0 ? "positive" : "negative"}>
+                            <h3
+                                className={
+                                    reportSummary.balance >= 0 ? "positive" : "negative"
+                                }
+                            >
                                 {reportSummary.balance} RON
                             </h3>
                         </div>
@@ -414,7 +399,8 @@ function Reports() {
                                         <span>Current</span>
                                         <strong>{current.month}</strong>
                                         <small>
-                                            Income: {current.income} RON • Expenses: {current.expenses} RON
+                                            Income: {current.income} RON • Expenses:{" "}
+                                            {current.expenses} RON
                                         </small>
                                     </div>
 
@@ -431,19 +417,40 @@ function Reports() {
                                     <div className="report-diff-grid">
                                         <div className="report-diff-item">
                                             <span>Income Diff</span>
-                                            <strong className={previous && current.income - previous.income >= 0 ? "positive" : "negative"}>
+                                            <strong
+                                                className={
+                                                    previous && current.income - previous.income >= 0
+                                                        ? "positive"
+                                                        : "negative"
+                                                }
+                                            >
                                                 {previous ? current.income - previous.income : 0} RON
                                             </strong>
                                         </div>
+
                                         <div className="report-diff-item">
                                             <span>Expense Diff</span>
-                                            <strong className={previous && current.expenses - previous.expenses <= 0 ? "positive" : "negative"}>
-                                                {previous ? current.expenses - previous.expenses : 0} RON
+                                            <strong
+                                                className={
+                                                    previous && current.expenses - previous.expenses <= 0
+                                                        ? "positive"
+                                                        : "negative"
+                                                }
+                                            >
+                                                {previous ? current.expenses - previous.expenses : 0}{" "}
+                                                RON
                                             </strong>
                                         </div>
+
                                         <div className="report-diff-item">
                                             <span>Balance Diff</span>
-                                            <strong className={previous && current.balance - previous.balance >= 0 ? "positive" : "negative"}>
+                                            <strong
+                                                className={
+                                                    previous && current.balance - previous.balance >= 0
+                                                        ? "positive"
+                                                        : "negative"
+                                                }
+                                            >
                                                 {previous ? current.balance - previous.balance : 0} RON
                                             </strong>
                                         </div>
@@ -458,7 +465,9 @@ function Reports() {
                             <div className="mini-summary">
                                 <div className="mini-summary-item">
                                     <span>Highest Expense</span>
-                                    <strong className="negative">{reportSummary.highestExpense} RON</strong>
+                                    <strong className="negative">
+                                        {reportSummary.highestExpense} RON
+                                    </strong>
                                     <small>{reportSummary.highestExpenseCategory}</small>
                                 </div>
 
@@ -490,7 +499,9 @@ function Reports() {
                             <div className="empty-state">
                                 <div className="empty-icon">📄</div>
                                 <h3>No report rows yet</h3>
-                                <p>Monthly summaries will appear here after adding transactions.</p>
+                                <p>
+                                    Monthly summaries will appear here after adding transactions.
+                                </p>
                             </div>
                         ) : (
                             <div className="report-table">
@@ -506,7 +517,9 @@ function Reports() {
                                         <span>{row.month}</span>
                                         <span className="positive">{row.income} RON</span>
                                         <span className="negative">{row.expenses} RON</span>
-                                        <span className={row.balance >= 0 ? "positive" : "negative"}>
+                                        <span
+                                            className={row.balance >= 0 ? "positive" : "negative"}
+                                        >
                                             {row.balance} RON
                                         </span>
                                     </div>

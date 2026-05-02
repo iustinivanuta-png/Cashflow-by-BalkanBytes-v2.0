@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../App.css";
+import AppSidebar from "../components/AppSidebar";
 import {
     ResponsiveContainer,
     LineChart,
@@ -17,8 +17,6 @@ import {
 const API = "http://localhost:4000";
 
 function Analytics() {
-    const navigate = useNavigate();
-
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -26,7 +24,6 @@ function Analytics() {
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
 
     const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("user") || "null");
 
     useEffect(() => {
         if (theme === "light") document.body.classList.add("light-mode");
@@ -87,7 +84,10 @@ function Analytics() {
 
         transactions.forEach((t) => {
             const d = new Date(t.date);
-            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+                2,
+                "0"
+            )}`;
 
             if (!monthMap[key]) {
                 monthMap[key] = {
@@ -102,7 +102,9 @@ function Analytics() {
             }
 
             if (t.type === "income") monthMap[key].income += Number(t.amount || 0);
-            if (t.type === "expense") monthMap[key].expenses += Number(t.amount || 0);
+            if (t.type === "expense") {
+                monthMap[key].expenses += Number(t.amount || 0);
+            }
         });
 
         return Object.values(monthMap)
@@ -119,6 +121,7 @@ function Analytics() {
 
         transactions.forEach((t) => {
             if (t.type !== "expense") return;
+
             const key = t.category || "Other";
             totals[key] = (totals[key] || 0) + Number(t.amount || 0);
         });
@@ -142,6 +145,7 @@ function Analytics() {
 
             if (t.type === "expense") {
                 totalExpenses += amount;
+
                 if (amount > highestExpense) {
                     highestExpense = amount;
                     highestExpenseItem = t;
@@ -151,7 +155,8 @@ function Analytics() {
 
         const savings = totalIncome - totalExpenses;
         const savingsRate = totalIncome > 0 ? (savings / totalIncome) * 100 : 0;
-        const spentPercentage = totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
+        const spentPercentage =
+            totalIncome > 0 ? (totalExpenses / totalIncome) * 100 : 0;
 
         const averageMonthlySpending =
             monthlyTrendData.length > 0
@@ -159,7 +164,8 @@ function Analytics() {
                 monthlyTrendData.length
                 : 0;
 
-        const topCategory = categoryExpenseData.length > 0 ? categoryExpenseData[0] : null;
+        const topCategory =
+            categoryExpenseData.length > 0 ? categoryExpenseData[0] : null;
 
         return {
             savings,
@@ -177,15 +183,7 @@ function Analytics() {
         return (
             <div className="app page-enter">
                 <div className="dashboard-layout">
-                    <aside className="sidebar glass">
-                        <div className="sidebar-logo">
-                            <div className="sidebar-logo-icon">📊</div>
-                            <div>
-                                <h2>CashFlow</h2>
-                                <p>Finance App</p>
-                            </div>
-                        </div>
-                    </aside>
+                    <AppSidebar active="analytics" />
 
                     <main className="dashboard-main">
                         <div className="dashboard-loader glass">
@@ -206,41 +204,7 @@ function Analytics() {
             <div className="bg-orb orb3"></div>
 
             <div className="dashboard-layout">
-                <aside className="sidebar glass">
-                    <div className="sidebar-logo">
-                        <div className="sidebar-logo-icon">📊</div>
-                        <div>
-                            <h2>CashFlow</h2>
-                            <p>Finance App</p>
-                        </div>
-                    </div>
-
-                    <nav className="sidebar-menu">
-                        <button className="sidebar-item" onClick={() => navigate("/")}>
-                            Dashboard
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/transactions")}>
-                            Transactions
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/reports")}>
-                            Reports
-                        </button>
-                        <button
-                            className="sidebar-item active"
-                            onClick={() => navigate("/analytics")}
-                        >
-                            Analytics
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/settings")}>
-                            Settings
-                        </button>
-                    </nav>
-
-                    <div className="sidebar-user">
-                        <strong>{user?.name || "User"}</strong>
-                        <span>{user?.email || "No email"}</span>
-                    </div>
-                </aside>
+                <AppSidebar active="analytics" />
 
                 <main className="dashboard-main">
                     <header className="topbar glass">
@@ -255,6 +219,7 @@ function Analytics() {
                             <button className="theme-btn" onClick={handleThemeToggle}>
                                 {theme === "dark" ? "☀ Light" : "🌙 Dark"}
                             </button>
+
                             <button
                                 className="refresh-btn"
                                 onClick={() => fetchTransactions(true)}
@@ -269,6 +234,7 @@ function Analytics() {
                                     "Refresh"
                                 )}
                             </button>
+
                             <button className="delete-btn" onClick={handleLogout}>
                                 Logout
                             </button>
@@ -280,22 +246,33 @@ function Analytics() {
                     <section className="analytics-stats-strip">
                         <div className="glass dashboard-card">
                             <span>Savings</span>
-                            <h3 className={analyticsSummary.savings >= 0 ? "positive" : "negative"}>
+                            <h3
+                                className={
+                                    analyticsSummary.savings >= 0 ? "positive" : "negative"
+                                }
+                            >
                                 {analyticsSummary.savings} RON
                             </h3>
                         </div>
+
                         <div className="glass dashboard-card">
                             <span>Savings Rate</span>
-                            <h3 className={analyticsSummary.savingsRate >= 0 ? "positive" : "negative"}>
+                            <h3
+                                className={
+                                    analyticsSummary.savingsRate >= 0 ? "positive" : "negative"
+                                }
+                            >
                                 {analyticsSummary.savingsRate.toFixed(1)}%
                             </h3>
                         </div>
+
                         <div className="glass dashboard-card">
                             <span>Spent From Income</span>
                             <h3 className="negative">
                                 {analyticsSummary.spentPercentage.toFixed(1)}%
                             </h3>
                         </div>
+
                         <div className="glass dashboard-card">
                             <span>Avg Monthly Spending</span>
                             <h3>{analyticsSummary.averageMonthlySpending.toFixed(0)} RON</h3>
@@ -321,8 +298,18 @@ function Analytics() {
                                             <YAxis />
                                             <Tooltip />
                                             <Legend />
-                                            <Line type="monotone" dataKey="income" name="Income" strokeWidth={3} />
-                                            <Line type="monotone" dataKey="expenses" name="Expenses" strokeWidth={3} />
+                                            <Line
+                                                type="monotone"
+                                                dataKey="income"
+                                                name="Income"
+                                                strokeWidth={3}
+                                            />
+                                            <Line
+                                                type="monotone"
+                                                dataKey="expenses"
+                                                name="Expenses"
+                                                strokeWidth={3}
+                                            />
                                         </LineChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -346,7 +333,11 @@ function Analytics() {
                                             <XAxis dataKey="name" />
                                             <YAxis />
                                             <Tooltip />
-                                            <Bar dataKey="value" name="Expenses" radius={[8, 8, 0, 0]} />
+                                            <Bar
+                                                dataKey="value"
+                                                name="Expenses"
+                                                radius={[8, 8, 0, 0]}
+                                            />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -357,11 +348,16 @@ function Analytics() {
                     <section className="analytics-insights-grid">
                         <div className="glass panel">
                             <h2>Highest Expense</h2>
+
                             <div className="analytics-highlight-block">
-                                <strong className="negative">{analyticsSummary.highestExpense} RON</strong>
+                                <strong className="negative">
+                                    {analyticsSummary.highestExpense} RON
+                                </strong>
+
                                 <span>
                                     {analyticsSummary.highestExpenseItem
-                                        ? `${analyticsSummary.highestExpenseItem.category} • ${analyticsSummary.highestExpenseItem.description || "No description"
+                                        ? `${analyticsSummary.highestExpenseItem.category} • ${analyticsSummary.highestExpenseItem.description ||
+                                        "No description"
                                         }`
                                         : "No expense yet"}
                                 </span>
@@ -370,12 +366,14 @@ function Analytics() {
 
                         <div className="glass panel">
                             <h2>Top Category</h2>
+
                             <div className="analytics-highlight-block">
                                 <strong>
                                     {analyticsSummary.topCategory
                                         ? analyticsSummary.topCategory.name
                                         : "-"}
                                 </strong>
+
                                 <span>
                                     {analyticsSummary.topCategory
                                         ? `${analyticsSummary.topCategory.value} RON`
@@ -386,6 +384,7 @@ function Analytics() {
 
                         <div className="glass panel">
                             <h2>Insights</h2>
+
                             <div className="analytics-highlight-block">
                                 <strong>{analyticsSummary.monthsAnalysed}</strong>
                                 <span>Months analysed in the current dataset</span>

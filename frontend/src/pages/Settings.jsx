@@ -1,12 +1,10 @@
 ﻿import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../App.css";
+import AppSidebar from "../components/AppSidebar";
 
 const API = "http://localhost:4000";
 
 function Settings() {
-    const navigate = useNavigate();
-
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
     const [loading, setLoading] = useState(true);
     const [savingProfile, setSavingProfile] = useState(false);
@@ -26,7 +24,6 @@ function Settings() {
     });
 
     const token = localStorage.getItem("token");
-    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
 
     useEffect(() => {
         if (theme === "light") {
@@ -97,6 +94,7 @@ function Settings() {
 
     const handleProfileChange = (e) => {
         const { name, value } = e.target;
+
         setProfileForm((prev) => ({
             ...prev,
             [name]: value,
@@ -105,6 +103,7 @@ function Settings() {
 
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
+
         setPasswordForm((prev) => ({
             ...prev,
             [name]: value,
@@ -148,6 +147,7 @@ function Settings() {
             }
 
             localStorage.setItem("token", data.token);
+
             localStorage.setItem(
                 "user",
                 JSON.stringify({
@@ -232,15 +232,7 @@ function Settings() {
         return (
             <div className="app page-enter">
                 <div className="dashboard-layout">
-                    <aside className="sidebar glass">
-                        <div className="sidebar-logo">
-                            <div className="sidebar-logo-icon">📊</div>
-                            <div>
-                                <h2>CashFlow</h2>
-                                <p>Finance App</p>
-                            </div>
-                        </div>
-                    </aside>
+                    <AppSidebar active="settings" />
 
                     <main className="dashboard-main">
                         <div className="dashboard-loader glass">
@@ -261,41 +253,7 @@ function Settings() {
             <div className="bg-orb orb3"></div>
 
             <div className="dashboard-layout">
-                <aside className="sidebar glass">
-                    <div className="sidebar-logo">
-                        <div className="sidebar-logo-icon">📊</div>
-                        <div>
-                            <h2>CashFlow</h2>
-                            <p>Finance App</p>
-                        </div>
-                    </div>
-
-                    <nav className="sidebar-menu">
-                        <button className="sidebar-item" onClick={() => navigate("/")}>
-                            Dashboard
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/transactions")}>
-                            Transactions
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/reports")}>
-                            Reports
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/analytics")}>
-                            Analytics
-                        </button>
-                        <button
-                            className="sidebar-item active"
-                            onClick={() => navigate("/settings")}
-                        >
-                            Settings
-                        </button>
-                    </nav>
-
-                    <div className="sidebar-user">
-                        <strong>{storedUser?.name || "User"}</strong>
-                        <span>{storedUser?.email || "No email"}</span>
-                    </div>
-                </aside>
+                <AppSidebar active="settings" />
 
                 <main className="dashboard-main">
                     <header className="topbar glass fade-up delay-1">
@@ -359,6 +317,7 @@ function Settings() {
                             <form className="transaction-form" onSubmit={saveProfile}>
                                 <div className="field">
                                     <label>Name</label>
+
                                     <input
                                         type="text"
                                         name="name"
@@ -370,6 +329,7 @@ function Settings() {
 
                                 <div className="field">
                                     <label>Email</label>
+
                                     <input
                                         type="email"
                                         name="email"
@@ -391,6 +351,7 @@ function Settings() {
                             <form className="transaction-form" onSubmit={changePassword}>
                                 <div className="field">
                                     <label>Current Password</label>
+
                                     <input
                                         type="password"
                                         name="currentPassword"
@@ -402,6 +363,7 @@ function Settings() {
 
                                 <div className="field">
                                     <label>New Password</label>
+
                                     <input
                                         type="password"
                                         name="newPassword"
@@ -413,6 +375,7 @@ function Settings() {
 
                                 <div className="field">
                                     <label>Confirm New Password</label>
+
                                     <input
                                         type="password"
                                         name="confirmPassword"

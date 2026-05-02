@@ -1,0 +1,88 @@
+.rev-lang {
+    position: relative;
+}
+
+.rev-lang-current {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(30, 40, 60, 0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 8px 14px;
+    border-radius: 999px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: 0.25s;
+}
+
+    .rev-lang-current:hover {
+        background: rgba(40, 55, 80, 0.8);
+    }
+
+    .rev-lang-current img {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+    }
+
+    .rev-lang-current svg {
+        width: 14px;
+        height: 14px;
+        stroke: white;
+        stroke-width: 2;
+        fill: none;
+    }
+
+.rev-lang-menu {
+    position: absolute;
+    top: 120%;
+    right: 0;
+    background: #1b2538;
+    border-radius: 14px;
+    padding: 6px;
+    width: 180px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    animation: fadeIn 0.2s ease;
+}
+
+.rev-lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    background: transparent;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .rev-lang-option img {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+    }
+
+    .rev-lang-option:hover {
+        background: rgba(255,255,255,0.08);
+    }
+
+    .rev-lang-option.active {
+        background: #4c6fff;
+    }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -6,6 +6,7 @@ Aplicația oferă un backend REST API și un frontend modern realizat cu React.
 
 ---
 
+
 ## 🚀 Funcționalități
 
 - Adăugare tranzacții (income / expense)

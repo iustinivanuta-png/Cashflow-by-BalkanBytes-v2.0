@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../App.css";
+import AppSidebar from "../components/AppSidebar";
 
 const API = "http://localhost:4000";
 
@@ -16,8 +16,6 @@ const categoryIcons = {
 };
 
 function Transactions() {
-    const navigate = useNavigate();
-
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -40,14 +38,11 @@ function Transactions() {
     });
 
     const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("user") || "null");
 
     useEffect(() => {
-        if (theme === "light") {
-            document.body.classList.add("light-mode");
-        } else {
-            document.body.classList.remove("light-mode");
-        }
+        if (theme === "light") document.body.classList.add("light-mode");
+        else document.body.classList.remove("light-mode");
+
         localStorage.setItem("theme", theme);
     }, [theme]);
 
@@ -109,6 +104,7 @@ function Transactions() {
             txDate.getMonth(),
             txDate.getDate()
         );
+
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
         if (periodFilter === "today") {
@@ -119,8 +115,10 @@ function Transactions() {
             const weekStart = new Date(today);
             const day = weekStart.getDay();
             const diff = day === 0 ? 6 : day - 1;
+
             weekStart.setDate(today.getDate() - diff);
             weekStart.setHours(0, 0, 0, 0);
+
             return tx >= weekStart && tx <= today;
         }
 
@@ -139,9 +137,11 @@ function Transactions() {
 
         if (search.trim()) {
             const q = search.toLowerCase().trim();
+
             result = result.filter((t) => {
                 const description = (t.description || "").toLowerCase();
                 const category = (t.category || "").toLowerCase();
+
                 return description.includes(q) || category.includes(q);
             });
         }
@@ -189,6 +189,7 @@ function Transactions() {
 
     const startEdit = (transaction) => {
         setEditingId(transaction._id);
+
         setEditForm({
             type: transaction.type,
             amount: String(transaction.amount),
@@ -196,11 +197,13 @@ function Transactions() {
             date: new Date(transaction.date).toISOString().split("T")[0],
             description: transaction.description || "",
         });
+
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     const cancelEdit = () => {
         setEditingId(null);
+
         setEditForm({
             type: "expense",
             amount: "",
@@ -212,6 +215,7 @@ function Transactions() {
 
     const handleEditChange = (e) => {
         const { name, value } = e.target;
+
         setEditForm((prev) => ({
             ...prev,
             [name]: value,
@@ -301,15 +305,8 @@ function Transactions() {
         return (
             <div className="app page-enter">
                 <div className="dashboard-layout">
-                    <aside className="sidebar glass">
-                        <div className="sidebar-logo">
-                            <div className="sidebar-logo-icon">📊</div>
-                            <div>
-                                <h2>CashFlow</h2>
-                                <p>Finance App</p>
-                            </div>
-                        </div>
-                    </aside>
+                    <AppSidebar active="transactions" />
+
                     <main className="dashboard-main">
                         <div className="dashboard-loader glass">
                             <span className="spinner"></span>
@@ -329,41 +326,7 @@ function Transactions() {
             <div className="bg-orb orb3"></div>
 
             <div className="dashboard-layout">
-                <aside className="sidebar glass">
-                    <div className="sidebar-logo">
-                        <div className="sidebar-logo-icon">📊</div>
-                        <div>
-                            <h2>CashFlow</h2>
-                            <p>Finance App</p>
-                        </div>
-                    </div>
-
-                    <nav className="sidebar-menu">
-                        <button className="sidebar-item" onClick={() => navigate("/")}>
-                            Dashboard
-                        </button>
-                        <button
-                            className="sidebar-item active"
-                            onClick={() => navigate("/transactions")}
-                        >
-                            Transactions
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/reports")}>
-                            Reports
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/analytics")}>
-                            Analytics
-                        </button>
-                        <button className="sidebar-item" onClick={() => navigate("/settings")}>
-                            Settings
-                        </button>
-                    </nav>
-
-                    <div className="sidebar-user">
-                        <strong>{user?.name || "User"}</strong>
-                        <span>{user?.email || "No email"}</span>
-                    </div>
-                </aside>
+                <AppSidebar active="transactions" />
 
                 <main className="dashboard-main">
                     <header className="topbar glass">
@@ -378,6 +341,7 @@ function Transactions() {
                             <button className="theme-btn" onClick={handleThemeToggle}>
                                 {theme === "dark" ? "☀ Light" : "🌙 Dark"}
                             </button>
+
                             <button
                                 className="refresh-btn"
                                 onClick={() => fetchTransactions(true)}
@@ -392,6 +356,7 @@ function Transactions() {
                                     "Refresh"
                                 )}
                             </button>
+
                             <button className="delete-btn" onClick={handleLogout}>
                                 Logout
                             </button>
@@ -404,6 +369,7 @@ function Transactions() {
                         <div className="transactions-hero-grid">
                             <div className="field">
                                 <label>Search</label>
+
                                 <input
                                     type="text"
                                     placeholder="Search by description or category"
@@ -414,6 +380,7 @@ function Transactions() {
 
                             <div className="field">
                                 <label>Type</label>
+
                                 <select
                                     value={typeFilter}
                                     onChange={(e) => setTypeFilter(e.target.value)}
@@ -426,6 +393,7 @@ function Transactions() {
 
                             <div className="field">
                                 <label>Period</label>
+
                                 <select
                                     value={periodFilter}
                                     onChange={(e) => setPeriodFilter(e.target.value)}
@@ -439,6 +407,7 @@ function Transactions() {
 
                             <div className="field">
                                 <label>Sort by</label>
+
                                 <select
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
@@ -456,22 +425,32 @@ function Transactions() {
                                 <span>Results</span>
                                 <strong>{filteredSummary.count}</strong>
                             </div>
+
                             <div className="transactions-mini-chip">
                                 <span>Income</span>
-                                <strong className="positive">{filteredSummary.income} RON</strong>
+                                <strong className="positive">
+                                    {filteredSummary.income} RON
+                                </strong>
                             </div>
+
                             <div className="transactions-mini-chip">
                                 <span>Expenses</span>
-                                <strong className="negative">{filteredSummary.expenses} RON</strong>
+                                <strong className="negative">
+                                    {filteredSummary.expenses} RON
+                                </strong>
                             </div>
+
                             <div className="transactions-mini-chip">
                                 <span>Balance</span>
                                 <strong
-                                    className={filteredSummary.balance >= 0 ? "positive" : "negative"}
+                                    className={
+                                        filteredSummary.balance >= 0 ? "positive" : "negative"
+                                    }
                                 >
                                     {filteredSummary.balance} RON
                                 </strong>
                             </div>
+
                             <button className="refresh-btn" type="button" onClick={clearFilters}>
                                 Clear filters
                             </button>
@@ -487,6 +466,7 @@ function Transactions() {
                                     <div className="form-row">
                                         <div className="field">
                                             <label>Type</label>
+
                                             <select
                                                 name="type"
                                                 value={editForm.type}
@@ -499,6 +479,7 @@ function Transactions() {
 
                                         <div className="field">
                                             <label>Amount</label>
+
                                             <input
                                                 type="number"
                                                 name="amount"
@@ -512,6 +493,7 @@ function Transactions() {
                                     <div className="form-row">
                                         <div className="field">
                                             <label>Category</label>
+
                                             <select
                                                 name="category"
                                                 value={editForm.category}
@@ -530,6 +512,7 @@ function Transactions() {
 
                                         <div className="field">
                                             <label>Date</label>
+
                                             <input
                                                 type="date"
                                                 name="date"
@@ -541,6 +524,7 @@ function Transactions() {
 
                                     <div className="field">
                                         <label>Description / Notes</label>
+
                                         <input
                                             type="text"
                                             name="description"
@@ -554,6 +538,7 @@ function Transactions() {
                                         <button className="add-btn" type="submit">
                                             Save changes
                                         </button>
+
                                         <button
                                             className="refresh-btn"
                                             type="button"
@@ -595,6 +580,7 @@ function Transactions() {
                                                             <span className="category-icon">{icon}</span>{" "}
                                                             {t.category}
                                                         </strong>
+
                                                         <span>{t.description || "Fără descriere"}</span>
                                                     </div>
                                                 </div>
