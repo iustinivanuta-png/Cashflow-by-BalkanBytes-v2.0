@@ -329,39 +329,41 @@ function Transactions() {
                 <AppSidebar active="transactions" />
 
                 <main className="dashboard-main">
-                    <header className="topbar glass">
-                        <div>
-                            <h1 className="topbar-title">Transactions Manager</h1>
-                            <p className="topbar-subtitle">
-                                Search, filter, sort and edit all your operations
-                            </p>
-                        </div>
+                    <header className="v0-header">
+    <div className="v0-header-left">
+        <h2 className="v0-header-title">
+            Welcome back, Justy Lup 👋
+        </h2>
+    </div>
 
-                        <div className="header-actions">
-                            <button className="theme-btn" onClick={handleThemeToggle}>
-                                {theme === "dark" ? "☀ Light" : "🌙 Dark"}
-                            </button>
+    <div className="v0-header-right">
+        <button className="v0-add-btn">
+            ✚ Add Transaction
+        </button>
 
-                            <button
-                                className="refresh-btn"
-                                onClick={() => fetchTransactions(true)}
-                                disabled={refreshing}
-                            >
-                                {refreshing ? (
-                                    <span className="btn-loader-wrap">
-                                        <span className="spinner small"></span>
-                                        Refreshing...
-                                    </span>
-                                ) : (
-                                    "Refresh"
-                                )}
-                            </button>
+        <button className="v0-icon-btn">
+            🌐 RO
+        </button>
 
-                            <button className="delete-btn" onClick={handleLogout}>
-                                Logout
-                            </button>
-                        </div>
-                    </header>
+        <button
+            className="v0-icon-btn"
+            onClick={handleThemeToggle}
+        >
+            {theme === "dark" ? "🌙" : "☀"}
+        </button>
+
+        <div className="v0-profile-chip">
+            <div className="v0-profile-avatar">
+                J
+            </div>
+
+            <div className="v0-profile-info">
+                <strong>Justy Lup</strong>
+                <span>justylup@gmail.com</span>
+            </div>
+        </div>
+    </div>
+</header>
 
                     {error && <div className="error-box">{error}</div>}
 

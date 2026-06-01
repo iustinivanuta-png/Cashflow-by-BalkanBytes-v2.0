@@ -15,16 +15,16 @@ import {
 
 const API = "http://localhost:4000";
 
-const categoryIcons = {
-    Food: "🍔",
-    Salary: "💼",
-    Transport: "🚗",
-    Bills: "💡",
-    Shopping: "🛍️",
-    Health: "❤️",
-    Entertainment: "🎬",
-    Other: "📦",
-};
+const categories = [
+    "Food",
+    "Salary",
+    "Transport",
+    "Bills",
+    "Shopping",
+    "Health",
+    "Entertainment",
+    "Other",
+];
 
 const categoryLabels = {
     Food: "Food & Drinks",
@@ -48,16 +48,22 @@ function Dashboard() {
         totalExpenses: 0,
         balance: 0,
     });
-
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+    const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
     const [profileOpen, setProfileOpen] = useState(false);
     const [langOpen, setLangOpen] = useState(false);
-    const [lang, setLang] = useState(localStorage.getItem("lang") || "en");
-    const [chartView, setChartView] = useState(
-        localStorage.getItem("chartView") || "monthly"
-    );
+    const [addOpen, setAddOpen] = useState(false);
+    const [chartView, setChartView] = useState(localStorage.getItem("chartView") || "monthly");
+    const [form, setForm] = useState({
+        type: "expense",
+        amount: "",
+        category: "Food",
+        date: new Date().toISOString().split("T")[0],
+        description: "",
+    });
 
     const token = localStorage.getItem("token");
     const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -65,7 +71,6 @@ function Dashboard() {
     useEffect(() => {
         if (theme === "light") document.body.classList.add("light-mode");
         else document.body.classList.remove("light-mode");
-
         localStorage.setItem("theme", theme);
     }, [theme]);
 
@@ -79,13 +84,8 @@ function Dashboard() {
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (profileRef.current && !profileRef.current.contains(event.target)) {
-                setProfileOpen(false);
-            }
-
-            if (langRef.current && !langRef.current.contains(event.target)) {
-                setLangOpen(false);
-            }
+            if (profileRef.current && !profileRef.current.contains(event.target)) setProfileOpen(false);
+            if (langRef.current && !langRef.current.contains(event.target)) setLangOpen(false);
         };
 
         document.addEventListener("mousedown", handleClickOutside);
@@ -102,18 +102,19 @@ function Dashboard() {
         setTheme((prev) => (prev === "dark" ? "light" : "dark"));
     };
 
+    const authHeaders = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+    };
+
     const fetchData = async () => {
         try {
             setError("");
             setLoading(true);
 
             const [txRes, summaryRes] = await Promise.all([
-                fetch(`${API}/transactions`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                }),
-                fetch(`${API}/summary`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                }),
+                fetch(`${API}/transactions`, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(`${API}/summary`, { headers: { Authorization: `Bearer ${token}` } }),
             ]);
 
             if (txRes.status === 401 || summaryRes.status === 401) {
@@ -121,9 +122,7 @@ function Dashboard() {
                 return;
             }
 
-            if (!txRes.ok || !summaryRes.ok) {
-                throw new Error("Backend-ul nu răspunde.");
-            }
+            if (!txRes.ok || !summaryRes.ok) throw new Error("Backend-ul nu răspunde.");
 
             const txData = await txRes.json();
             const summaryData = await summaryRes.json();
@@ -138,12 +137,80 @@ function Dashboard() {
         }
     };
 
+    const refreshData = async () => {
+        try {
+            const [txRes, summaryRes] = await Promise.all([
+                fetch(`${API}/transactions`, { headers: { Authorization: `Bearer ${token}` } }),
+                fetch(`${API}/summary`, { headers: { Authorization: `Bearer ${token}` } }),
+            ]);
+
+            if (txRes.status === 401 || summaryRes.status === 401) {
+                handleLogout();
+                return;
+            }
+
+            setTransactions(await txRes.json());
+            setSummary(await summaryRes.json());
+        } catch (err) {
+            console.error(err);
+            setError("Nu s-au putut actualiza datele.");
+        }
+    };
+
     useEffect(() => {
         fetchData();
     }, []);
 
-    const formatMoney = (amount) => {
-        return `${Number(amount || 0).toLocaleString("ro-RO")} RON`;
+    const formatMoney = (amount) => `${Number(amount || 0).toLocaleString("ro-RO")} RON`;
+
+    const handleFormChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleAddTransaction = async (e) => {
+        e.preventDefault();
+
+        if (!form.amount || Number(form.amount) <= 0) {
+            alert("Introdu o sumă validă.");
+            return;
+        }
+
+        try {
+            setSaving(true);
+            const res = await fetch(`${API}/transactions`, {
+                method: "POST",
+                headers: authHeaders,
+                body: JSON.stringify({
+                    ...form,
+                    amount: Number(form.amount),
+                    category: form.category.trim(),
+                    description: form.description.trim(),
+                }),
+            });
+
+            if (res.status === 401) {
+                handleLogout();
+                return;
+            }
+
+            if (!res.ok) throw new Error("Nu s-a putut adăuga tranzacția.");
+
+            setForm({
+                type: "expense",
+                amount: "",
+                category: "Food",
+                date: new Date().toISOString().split("T")[0],
+                description: "",
+            });
+            setAddOpen(false);
+            refreshData();
+        } catch (err) {
+            console.error(err);
+            alert("Eroare la adăugare.");
+        } finally {
+            setSaving(false);
+        }
     };
 
     const cashflowData = useMemo(() => {
@@ -154,29 +221,17 @@ function Dashboard() {
             for (let i = 6; i >= 0; i--) {
                 const d = new Date(now);
                 d.setDate(now.getDate() - i);
-
                 const key = d.toISOString().split("T")[0];
-
-                map[key] = {
-                    key,
-                    label: d.toLocaleDateString("en-US", { weekday: "short" }),
-                    income: 0,
-                    expenses: 0,
-                    net: 0,
-                };
+                map[key] = { key, label: d.toLocaleDateString("en-US", { weekday: "short" }), income: 0, expenses: 0, net: 0 };
             }
 
             transactions.forEach((t) => {
                 const d = new Date(t.date);
                 const key = d.toISOString().split("T")[0];
-
                 if (!map[key]) return;
-
                 const amount = Number(t.amount || 0);
-
                 if (t.type === "income") map[key].income += amount;
                 if (t.type === "expense") map[key].expenses += amount;
-
                 map[key].net = map[key].income - map[key].expenses;
             });
 
@@ -186,34 +241,17 @@ function Dashboard() {
         if (chartView === "monthly") {
             for (let i = 5; i >= 0; i--) {
                 const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-                    2,
-                    "0"
-                )}`;
-
-                map[key] = {
-                    key,
-                    label: d.toLocaleDateString("en-US", { month: "short" }),
-                    income: 0,
-                    expenses: 0,
-                    net: 0,
-                };
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+                map[key] = { key, label: d.toLocaleDateString("en-US", { month: "short" }), income: 0, expenses: 0, net: 0 };
             }
 
             transactions.forEach((t) => {
                 const d = new Date(t.date);
-                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
-                    2,
-                    "0"
-                )}`;
-
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
                 if (!map[key]) return;
-
                 const amount = Number(t.amount || 0);
-
                 if (t.type === "income") map[key].income += amount;
                 if (t.type === "expense") map[key].expenses += amount;
-
                 map[key].net = map[key].income - map[key].expenses;
             });
 
@@ -221,30 +259,18 @@ function Dashboard() {
         }
 
         const currentYear = now.getFullYear();
-
         for (let i = 4; i >= 0; i--) {
             const year = currentYear - i;
-
-            map[year] = {
-                key: String(year),
-                label: String(year),
-                income: 0,
-                expenses: 0,
-                net: 0,
-            };
+            map[year] = { key: String(year), label: String(year), income: 0, expenses: 0, net: 0 };
         }
 
         transactions.forEach((t) => {
             const d = new Date(t.date);
             const key = String(d.getFullYear());
-
             if (!map[key]) return;
-
             const amount = Number(t.amount || 0);
-
             if (t.type === "income") map[key].income += amount;
             if (t.type === "expense") map[key].expenses += amount;
-
             map[key].net = map[key].income - map[key].expenses;
         });
 
@@ -252,21 +278,18 @@ function Dashboard() {
     }, [transactions, chartView]);
 
     const lastFiveTransactions = useMemo(() => {
-        return [...transactions]
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .slice(0, 5);
+        return [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
     }, [transactions]);
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (!active || !payload || payload.length === 0) return null;
 
         return (
-            <div className="cf-tooltip">
+            <div className="v0-tooltip">
                 <strong>{label}</strong>
-
                 {payload.map((item) => (
-                    <div key={item.dataKey} className="cf-tooltip-row">
-                        <span className={`cf-dot ${item.dataKey}`}></span>
+                    <div key={item.dataKey} className="v0-tooltip-row">
+                        <span className={`v0-tooltip-dot ${item.dataKey}`}></span>
                         <span>{item.name}</span>
                         <b>{formatMoney(item.value)}</b>
                     </div>
@@ -277,15 +300,10 @@ function Dashboard() {
 
     if (loading) {
         return (
-            <div className="app page-enter">
-                <div className="bg-orb orb1"></div>
-                <div className="bg-orb orb2"></div>
-                <div className="bg-orb orb3"></div>
-
-                <div className="dashboard-layout cf-dashboard-layout">
+            <div className="v0-dashboard-page page-enter">
+                <div className="v0-shell">
                     <AppSidebar active="dashboard" />
-
-                    <main className="dashboard-main">
+                    <main className="v0-main">
                         <div className="dashboard-loader glass">
                             <span className="spinner"></span>
                             <h2>Se încarcă dashboard-ul...</h2>
@@ -298,120 +316,65 @@ function Dashboard() {
     }
 
     return (
-        <div className="app page-enter">
-            <div className="bg-orb orb1"></div>
-            <div className="bg-orb orb2"></div>
-            <div className="bg-orb orb3"></div>
-
-            <div className="dashboard-layout cf-dashboard-layout">
+        <div className="v0-dashboard-page page-enter">
+            <div className="v0-shell">
                 <AppSidebar active="dashboard" />
 
-                <main className="dashboard-main cf-dashboard-main">
-                    <header className="cf-topbar">
-                        <div className="cf-welcome">
+                <main className="v0-main">
+                    <header className="v0-header">
+                        <h1>
                             Welcome back, {user?.name || "User"} <span>👋</span>
-                        </div>
+                        </h1>
 
-                        <div className="cf-topbar-actions">
-                            <button
-                                className="cf-add-btn"
-                                type="button"
-                                onClick={() => navigate("/transactions")}
-                            >
+                        <div className="v0-header-actions">
+                            <button className="v0-add-button" type="button" onClick={() => setAddOpen(true)}>
                                 <span>+</span>
                                 Add Transaction
                             </button>
 
-                            <div className="cf-lang-wrap" ref={langRef}>
-                                <button
-                                    type="button"
-                                    className="cf-icon-pill"
-                                    onClick={() => setLangOpen((prev) => !prev)}
-                                >
+                            <div className="v0-lang" ref={langRef}>
+                                <button className="v0-pill-button" type="button" onClick={() => setLangOpen((prev) => !prev)}>
                                     <span>🌐</span>
                                     {lang === "ro" ? "RO" : "EN"}
                                 </button>
 
                                 {langOpen && (
-                                    <div className="cf-small-menu">
-                                        <button
-                                            type="button"
-                                            className={lang === "ro" ? "active" : ""}
-                                            onClick={() => {
-                                                setLang("ro");
-                                                setLangOpen(false);
-                                            }}
-                                        >
+                                    <div className="v0-dropdown v0-lang-menu">
+                                        <button className={lang === "ro" ? "active" : ""} type="button" onClick={() => { setLang("ro"); setLangOpen(false); }}>
                                             🇷🇴 Română
                                         </button>
-
-                                        <button
-                                            type="button"
-                                            className={lang === "en" ? "active" : ""}
-                                            onClick={() => {
-                                                setLang("en");
-                                                setLangOpen(false);
-                                            }}
-                                        >
+                                        <button className={lang === "en" ? "active" : ""} type="button" onClick={() => { setLang("en"); setLangOpen(false); }}>
                                             🇺🇸 English
                                         </button>
                                     </div>
                                 )}
                             </div>
 
-                            <button
-                                type="button"
-                                className="cf-icon-pill cf-theme-pill"
-                                onClick={handleThemeToggle}
-                            >
+                            <button className="v0-theme-toggle" type="button" onClick={handleThemeToggle}>
                                 {theme === "dark" ? "🌙" : "☀️"}
                             </button>
 
-                            <div className="cf-profile-wrap" ref={profileRef}>
-                                <button
-                                    className="cf-profile-trigger"
-                                    type="button"
-                                    onClick={() => setProfileOpen((prev) => !prev)}
-                                >
-                                    <div className="cf-profile-avatar">
-                                        {(user?.name || "U").charAt(0).toUpperCase()}
-                                    </div>
-
-                                    <div className="cf-profile-text">
+                            <div className="v0-profile" ref={profileRef}>
+                                <button className="v0-profile-trigger" type="button" onClick={() => setProfileOpen((prev) => !prev)}>
+                                    <span className="v0-avatar">{(user?.name || "U").charAt(0).toUpperCase()}</span>
+                                    <span className="v0-user-text">
                                         <strong>{user?.name || "User"}</strong>
-                                        <span>{user?.email || "No email"}</span>
-                                    </div>
-
-                                    <span className="cf-profile-arrow">⌄</span>
+                                        <small>{user?.email || "No email"}</small>
+                                    </span>
+                                    <span className="v0-chevron">⌄</span>
                                 </button>
 
                                 {profileOpen && (
-                                    <div className="cf-profile-menu">
-                                        <div className="cf-profile-menu-card">
-                                            <div className="cf-profile-avatar large">
-                                                {(user?.name || "U").charAt(0).toUpperCase()}
-                                            </div>
-
+                                    <div className="v0-dropdown v0-profile-menu">
+                                        <div className="v0-profile-card">
+                                            <span className="v0-avatar large">{(user?.name || "U").charAt(0).toUpperCase()}</span>
                                             <div>
                                                 <strong>{user?.name || "User"}</strong>
-                                                <span>{user?.email || "No email"}</span>
+                                                <small>{user?.email || "No email"}</small>
                                             </div>
                                         </div>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => navigate("/settings")}
-                                        >
-                                            ⚙️ Settings
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            className="logout"
-                                            onClick={handleLogout}
-                                        >
-                                            🚪 Logout
-                                        </button>
+                                        <button type="button" onClick={() => navigate("/settings")}>⚙️ Settings</button>
+                                        <button type="button" className="logout" onClick={handleLogout}>🚪 Logout</button>
                                     </div>
                                 )}
                             </div>
@@ -420,142 +383,55 @@ function Dashboard() {
 
                     {error && <div className="error-box">{error}</div>}
 
-                    <section className="cf-balance-card">
-                        <div className="cf-balance-content">
-                            <span>Current Balance</span>
-
-                            <h1 className={summary.balance >= 0 ? "positive" : "negative"}>
-                                {formatMoney(summary.balance)}
-                            </h1>
+                    <section className="v0-balance-card">
+                        <div>
+                            <div className="v0-balance-label">Current Balance <span>●</span></div>
+                            <h2 className={summary.balance >= 0 ? "positive" : "negative"}>{formatMoney(summary.balance)}</h2>
+                            <p>Total available balance based on your income and expenses.</p>
                         </div>
+                        <div className="v0-wallet-icon">💳</div>
                     </section>
 
-                    <section className="cf-chart-card">
-                        <div className="cf-section-header">
-                            <h2>Cash Flow Overview</h2>
+                    <section className="v0-chart-card">
+                        <div className="v0-section-header">
+                            <div>
+                                <h2>Cash Flow Overview</h2>
+                                <p>Track income, expenses and net balance over time.</p>
+                            </div>
 
-                            <div className="cf-chart-toggle">
-                                <button
-                                    type="button"
-                                    className={chartView === "weekly" ? "active" : ""}
-                                    onClick={() => setChartView("weekly")}
-                                >
-                                    Weekly
-                                </button>
-
-                                <button
-                                    type="button"
-                                    className={chartView === "monthly" ? "active" : ""}
-                                    onClick={() => setChartView("monthly")}
-                                >
-                                    Monthly
-                                </button>
-
-                                <button
-                                    type="button"
-                                    className={chartView === "yearly" ? "active" : ""}
-                                    onClick={() => setChartView("yearly")}
-                                >
-                                    Yearly
-                                </button>
+                            <div className="v0-period-toggle">
+                                {[
+                                    ["weekly", "Weekly"],
+                                    ["monthly", "Monthly"],
+                                    ["yearly", "Yearly"],
+                                ].map(([key, label]) => (
+                                    <button key={key} type="button" className={chartView === key ? "active" : ""} onClick={() => setChartView(key)}>
+                                        {label}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
-                        <div className="cf-chart-box">
-                            <ResponsiveContainer width="100%" height={340}>
-                                <LineChart
-                                    data={cashflowData}
-                                    margin={{ top: 20, right: 24, left: 0, bottom: 10 }}
-                                >
-                                    <defs>
-                                        <linearGradient id="cfIncomeLine" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#2f80ff" />
-                                            <stop offset="100%" stopColor="#60a5fa" />
-                                        </linearGradient>
-
-                                        <linearGradient id="cfExpenseLine" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#ff5b5b" />
-                                            <stop offset="100%" stopColor="#ff8b7b" />
-                                        </linearGradient>
-
-                                        <linearGradient id="cfNetLine" x1="0" y1="0" x2="1" y2="0">
-                                            <stop offset="0%" stopColor="#8b5cf6" />
-                                            <stop offset="100%" stopColor="#6d28d9" />
-                                        </linearGradient>
-                                    </defs>
-
-                                    <CartesianGrid
-                                        stroke="rgba(255,255,255,0.08)"
-                                        vertical={false}
-                                    />
-
-                                    <XAxis
-                                        dataKey="label"
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tick={{ fill: "#94a3b8", fontSize: 13 }}
-                                    />
-
-                                    <YAxis
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tick={{ fill: "#94a3b8", fontSize: 13 }}
-                                    />
-
+                        <div className="v0-chart-box">
+                            <ResponsiveContainer width="100%" height={330}>
+                                <LineChart data={cashflowData} margin={{ top: 18, right: 24, left: 0, bottom: 8 }}>
+                                    <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
+                                    <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 13 }} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 13 }} />
                                     <Tooltip content={<CustomTooltip />} />
-                                    <Legend
-                                        verticalAlign="bottom"
-                                        iconType="circle"
-                                        wrapperStyle={{ paddingTop: 18 }}
-                                    />
-
-                                    <Line
-                                        type="monotone"
-                                        dataKey="net"
-                                        name="Net Profit"
-                                        stroke="url(#cfNetLine)"
-                                        strokeWidth={3}
-                                        dot={false}
-                                        activeDot={{ r: 6 }}
-                                        isAnimationActive={false}
-                                    />
-
-                                    <Line
-                                        type="monotone"
-                                        dataKey="expenses"
-                                        name="Total Expenses"
-                                        stroke="url(#cfExpenseLine)"
-                                        strokeWidth={3}
-                                        dot={false}
-                                        activeDot={{ r: 6 }}
-                                        isAnimationActive={false}
-                                    />
-
-                                    <Line
-                                        type="monotone"
-                                        dataKey="income"
-                                        name="Total Income"
-                                        stroke="url(#cfIncomeLine)"
-                                        strokeWidth={3}
-                                        dot={false}
-                                        activeDot={{ r: 6 }}
-                                        isAnimationActive={false}
-                                    />
+                                    <Legend verticalAlign="bottom" iconType="circle" wrapperStyle={{ paddingTop: 18 }} />
+                                    <Line type="monotone" dataKey="net" name="Net Profit" stroke="#8b5cf6" strokeWidth={3} dot={false} activeDot={{ r: 6 }} isAnimationActive={false} />
+                                    <Line type="monotone" dataKey="expenses" name="Total Expenses" stroke="#ff5b5b" strokeWidth={3} dot={false} activeDot={{ r: 6 }} isAnimationActive={false} />
+                                    <Line type="monotone" dataKey="income" name="Total Income" stroke="#2f80ff" strokeWidth={3} dot={false} activeDot={{ r: 6 }} isAnimationActive={false} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
                     </section>
 
-                    <section className="cf-transactions-card">
-                        <div className="cf-transactions-header">
+                    <section className="v0-transactions-card">
+                        <div className="v0-transactions-header">
                             <h2>Last 5 Transactions</h2>
-
-                            <button
-                                type="button"
-                                onClick={() => navigate("/transactions")}
-                            >
-                                View all
-                            </button>
+                            <button type="button" onClick={() => navigate("/transactions")}>View all</button>
                         </div>
 
                         {lastFiveTransactions.length === 0 ? (
@@ -565,8 +441,8 @@ function Dashboard() {
                                 <p>Ultimele 5 tranzacții vor apărea aici.</p>
                             </div>
                         ) : (
-                            <div className="cf-table">
-                                <div className="cf-table-head">
+                            <div className="v0-table">
+                                <div className="v0-table-head">
                                     <span>Description</span>
                                     <span>Category</span>
                                     <span>Date</span>
@@ -574,56 +450,18 @@ function Dashboard() {
                                 </div>
 
                                 {lastFiveTransactions.map((t) => {
-                                    const icon = categoryIcons[t.category] || "📦";
-                                    const categoryLabel =
-                                        categoryLabels[t.category] || t.category || "Other";
-
+                                    const label = t.type === "income" ? "Income" : categoryLabels[t.category] || t.category || "Other";
                                     return (
-                                        <div className="cf-table-row" key={t._id}>
-                                            <div className="cf-description-cell">
-                                                <span
-                                                    className={
-                                                        t.type === "income"
-                                                            ? "cf-row-icon income"
-                                                            : "cf-row-icon expense"
-                                                    }
-                                                >
-                                                    {t.type === "income" ? "↓" : "↑"}
-                                                </span>
-
-                                                <strong>{t.description || t.category}</strong>
+                                        <div className="v0-table-row" key={t._id}>
+                                            <div className="v0-description">
+                                                <span className={t.type === "income" ? "v0-row-icon income" : "v0-row-icon expense"}>{t.type === "income" ? "↓" : "↑"}</span>
+                                                <strong>{t.description || t.category || "Transaction"}</strong>
                                             </div>
-
-                                            <div>
-                                                <span
-                                                    className={
-                                                        t.type === "income"
-                                                            ? "cf-category-pill income"
-                                                            : "cf-category-pill expense"
-                                                    }
-                                                >
-                                                    {t.type === "income" ? "Income" : categoryLabel}
-                                                </span>
-                                            </div>
-
-                                            <div className="cf-date">
-                                                {new Date(t.date).toLocaleDateString("en-US", {
-                                                    month: "short",
-                                                    day: "numeric",
-                                                    year: "numeric",
-                                                })}
-                                            </div>
-
-                                            <div
-                                                className={
-                                                    t.type === "income"
-                                                        ? "cf-amount positive"
-                                                        : "cf-amount negative"
-                                                }
-                                            >
-                                                {t.type === "income" ? "+" : "-"}
-                                                {formatMoney(t.amount)}
-                                            </div>
+                                            <span className={t.type === "income" ? "v0-category income" : "v0-category expense"}>{label}</span>
+                                            <span className="v0-date">{new Date(t.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                                            <strong className={t.type === "income" ? "v0-amount positive" : "v0-amount negative"}>
+                                                {t.type === "income" ? "+" : "-"}{formatMoney(t.amount)}
+                                            </strong>
                                         </div>
                                     );
                                 })}
@@ -632,6 +470,51 @@ function Dashboard() {
                     </section>
                 </main>
             </div>
+
+            {addOpen && (
+                <div className="v0-modal-backdrop" onMouseDown={() => setAddOpen(false)}>
+                    <form className="v0-modal" onSubmit={handleAddTransaction} onMouseDown={(e) => e.stopPropagation()}>
+                        <div className="v0-modal-header">
+                            <h2>Add Transaction</h2>
+                            <button type="button" onClick={() => setAddOpen(false)}>×</button>
+                        </div>
+
+                        <div className="v0-form-grid">
+                            <label>
+                                Type
+                                <select name="type" value={form.type} onChange={handleFormChange}>
+                                    <option value="expense">expense</option>
+                                    <option value="income">income</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Amount
+                                <input name="amount" type="number" placeholder="ex: 250" value={form.amount} onChange={handleFormChange} />
+                            </label>
+
+                            <label>
+                                Category
+                                <select name="category" value={form.category} onChange={handleFormChange}>
+                                    {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </label>
+
+                            <label>
+                                Date
+                                <input name="date" type="date" value={form.date} onChange={handleFormChange} />
+                            </label>
+                        </div>
+
+                        <label className="v0-full-label">
+                            Description
+                            <input name="description" type="text" placeholder="ex: salary / rent / groceries" value={form.description} onChange={handleFormChange} />
+                        </label>
+
+                        <button className="v0-modal-submit" type="submit" disabled={saving}>{saving ? "Saving..." : "Save transaction"}</button>
+                    </form>
+                </div>
+            )}
         </div>
     );
 }
