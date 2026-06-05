@@ -5,83 +5,107 @@ import LanguageSelector from "../components/LanguageSelector";
 
 const translations = {
     en: {
-        navPersonal: "Personal",
-        navBusiness: "Business",
-        navKids: "Kids",
-        navFeatures: "Features",
+        navFeatures: "",
+        navWhy: "",
         login: "Login",
         getStarted: "Get Started",
         day: "Day",
         night: "Night",
-        heroTitle: "Banking & Beyond",
+
+        heroTitle: "Control your finances in one place",
         heroText:
-            "Track your money, manage your goals and understand your cashflow in one modern finance dashboard.",
-        heroButton: "Choose your account",
-        secondButton: "Explore features",
-        previewType: "Personal",
-        previewAmount: "30,060 RON",
+            "CashFlow helps you track income, expenses, savings and financial statistics through a modern and intuitive interface.",
+        heroButton: "Get started",
+        
+
+        previewBalance: "Current Balance",
+        previewTransactions: "Latest transactions",
         previewIncome: "Salary",
-        previewAccount: "Accounts",
-        chooseTitle: "Choose your account type",
-        chooseText:
-            "CashFlow adapts the experience based on how you want to manage your money.",
-        personalTitle: "Personal",
-        personalText:
-            "Perfect for tracking income, expenses, savings and daily spending.",
-        businessTitle: "Business",
-        businessText:
-            "For freelancers and small businesses with profit, reports and tax estimates.",
-        kidsTitle: "Kids",
-        kidsText:
-            "A simple and friendly experience for savings goals and financial education.",
-        choosePersonal: "Choose Personal",
-        chooseBusiness: "Choose Business",
-        chooseKids: "Choose Kids",
-        featuresTitle: "Powerful features",
-        feature1: "Smart dashboard",
-        feature2: "Reports & exports",
-        feature3: "Budget tracking",
-        feature4: "Multi-language support",
+        previewFood: "Food",
+        previewEntertainment: "Entertainment",
+
+        featuresTitle: "Main features",
+        featuresSubtitle:
+            "Everything you need to manage your personal finances clearly and efficiently.",
+
+        dashboardTitle: "Smart Dashboard",
+        dashboardText:
+            "See your current balance and latest transactions in real time.",
+
+        analyticsTitle: "Financial Analytics",
+        analyticsText:
+            "Understand your income and expenses through modern charts and insights.",
+
+        exportTitle: "Reports & Export",
+        exportText:
+            "Export your financial data in PDF, CSV or Excel format.",
+
+        securityTitle: "Secure Account",
+        securityText:
+            "Login, register, reset password by email and manage your account safely.",
+
+        whyTitle: "Why CashFlow?",
+        why1: "Income and expense management",
+        why2: "Real-time dashboard",
+        why3: "Smart financial statistics",
+        why4: "PDF / CSV / Excel export",
+        why5: "Password recovery by email",
+        why6: "Dark and Light mode",
+        why7: "Romanian and English support",
+
+        footerText: "Personal finance management application.",
     },
 
     ro: {
-        navPersonal: "Personal",
-        navBusiness: "Business",
-        navKids: "Copii",
-        navFeatures: "Funcții",
+        navFeatures: "",
+        navWhy: "",
         login: "Intră în cont",
         getStarted: "Fă-ți cont",
         day: "Zi",
         night: "Noapte",
-        heroTitle: "Banking & Beyond",
+
+        heroTitle: "Controlează-ți finanțele într-un singur loc",
         heroText:
-            "Urmărește banii, gestionează obiectivele și înțelege cashflow-ul într-un dashboard financiar modern.",
-        heroButton: "Alege tipul contului",
-        secondButton: "Vezi funcțiile",
-        previewType: "Personal",
-        previewAmount: "30.060 RON",
+            "CashFlow te ajută să urmărești veniturile, cheltuielile, economiile și statisticile financiare printr-o interfață modernă și intuitivă.",
+        heroButton: "Începe acum",
+
+
+        previewBalance: "Sold curent",
+        previewTransactions: "Ultimele tranzacții",
         previewIncome: "Salariu",
-        previewAccount: "Conturi",
-        chooseTitle: "Alege tipul de cont",
-        chooseText:
-            "CashFlow adaptează experiența în funcție de modul în care vrei să îți gestionezi banii.",
-        personalTitle: "Personal",
-        personalText:
-            "Perfect pentru venituri, cheltuieli, economii și buget personal.",
-        businessTitle: "Business",
-        businessText:
-            "Pentru freelanceri și firme mici, cu profit, rapoarte și estimare taxe.",
-        kidsTitle: "Copii",
-        kidsText:
-            "O experiență simplă și prietenoasă pentru obiective de economisire.",
-        choosePersonal: "Alege Personal",
-        chooseBusiness: "Alege Business",
-        chooseKids: "Alege Copii",
+        previewFood: "Mâncare",
+        previewEntertainment: "Divertisment",
+
         featuresTitle: "Funcții principale",
-        feature1: "Dashboard inteligent",
-        feature2: "Rapoarte și export",
-        feature3: "Bugete",
-        feature4: "Suport EN / RO",
+        featuresSubtitle:
+            "Tot ce ai nevoie pentru a-ți gestiona finanțele personale clar și eficient.",
+
+        dashboardTitle: "Dashboard inteligent",
+        dashboardText:
+            "Vezi soldul curent și ultimele tranzacții în timp real.",
+
+        analyticsTitle: "Statistici financiare",
+        analyticsText:
+            "Înțelege veniturile și cheltuielile prin grafice moderne și insight-uri.",
+
+        exportTitle: "Rapoarte și export",
+        exportText:
+            "Exportă datele financiare în format PDF, CSV sau Excel.",
+
+        securityTitle: "Cont securizat",
+        securityText:
+            "Autentificare, înregistrare, resetare parolă pe email și administrare cont.",
+
+        whyTitle: "De ce CashFlow?",
+        why1: "Gestionare venituri și cheltuieli",
+        why2: "Dashboard în timp real",
+        why3: "Statistici financiare inteligente",
+        why4: "Export PDF / CSV / Excel",
+        why5: "Recuperare parolă prin email",
+        why6: "Mod Dark și Light",
+        why7: "Suport Română și Engleză",
+
+        footerText: "Aplicație pentru managementul finanțelor personale.",
     },
 };
 
@@ -90,9 +114,6 @@ function WelcomePage() {
 
     const [lang, setLang] = useState(localStorage.getItem("lang") || "ro");
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
-    const [selectedType, setSelectedType] = useState(
-        localStorage.getItem("accountType") || ""
-    );
 
     const t = translations[lang];
 
@@ -116,22 +137,26 @@ function WelcomePage() {
         navigate("/auth?mode=register");
     };
 
-    const chooseAccount = (type) => {
-        setSelectedType(type);
-        localStorage.setItem("accountType", type);
-        navigate("/auth?mode=register");
-    };
-
-    const scrollToAccounts = () => {
-        document
-            .getElementById("account-types")
-            ?.scrollIntoView({ behavior: "smooth" });
-    };
-
     const scrollToFeatures = () => {
-        document
-            .getElementById("features")
-            ?.scrollIntoView({ behavior: "smooth" });
+        const section = document.getElementById("features");
+
+        if (section) {
+            section.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+    };
+
+    const scrollToWhy = () => {
+        const section = document.getElementById("why-cashflow");
+
+        if (section) {
+            section.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
     };
 
     return (
@@ -146,12 +171,14 @@ function WelcomePage() {
                 </button>
 
                 <div className="welcome-links">
-                    <button onClick={scrollToAccounts}>{t.navPersonal}</button>
-                    <button onClick={scrollToAccounts}>{t.navBusiness}</button>
-                    <button onClick={scrollToAccounts}>{t.navKids}</button>
-                    <button onClick={scrollToFeatures}>{t.navFeatures}</button>
-                </div>
+                    <button type="button" onClick={scrollToFeatures}>
+                        {t.navFeatures}
+                    </button>
 
+                    <button type="button" onClick={scrollToWhy}>
+                        {t.navWhy}
+                    </button>
+                </div>
                 <div className="welcome-actions">
                     <LanguageSelector lang={lang} setLang={setLang} />
 
@@ -178,98 +205,115 @@ function WelcomePage() {
                     <p>{t.heroText}</p>
 
                     <div className="welcome-hero-buttons">
-                        <button className="black-btn" onClick={scrollToAccounts}>
+                        <button className="black-btn" onClick={goToRegister}>
                             {t.heroButton}
                         </button>
 
-                        <button className="white-btn" onClick={scrollToFeatures}>
-                            {t.secondButton}
-                        </button>
+                        
                     </div>
                 </div>
 
                 <div className="finance-preview-card">
-                    <div className="preview-card-glass">
-                        <span>{t.previewType}</span>
-                        <h2>{t.previewAmount}</h2>
-                        <button onClick={scrollToAccounts}>{t.previewAccount}</button>
+                    <div className="preview-card-glass dashboard-preview">
+                        <div className="preview-top">
+                            <span>{t.previewBalance}</span>
+                            <h2>12.540 RON</h2>
+                        </div>
 
-                        <div className="salary-card">
-                            <div className="salary-icon">💰</div>
+                        <div className="preview-mini-chart">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
 
-                            <div>
-                                <strong>{t.previewIncome}</strong>
-                                <small>Today, 11:28</small>
+                        <div className="preview-transactions">
+                            <h3>{t.previewTransactions}</h3>
+
+                            <div className="preview-transaction-row income">
+                                <div>
+                                    <strong>{t.previewIncome}</strong>
+                                    <small>Today, 09:20</small>
+                                </div>
+                                <span>+5.000 RON</span>
                             </div>
 
-                            <span>+12,750 RON</span>
+                            <div className="preview-transaction-row expense">
+                                <div>
+                                    <strong>{t.previewFood}</strong>
+                                    <small>Today, 13:10</small>
+                                </div>
+                                <span>-120 RON</span>
+                            </div>
+
+                            <div className="preview-transaction-row expense">
+                                <div>
+                                    <strong>{t.previewEntertainment}</strong>
+                                    <small>Yesterday, 20:45</small>
+                                </div>
+                                <span>-80 RON</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section id="account-types" className="account-section">
+            <section id="features" className="account-section">
                 <div className="section-heading">
-                    <h2>{t.chooseTitle}</h2>
-                    <p>{t.chooseText}</p>
+                    <h2>{t.featuresTitle}</h2>
+                    <p>{t.featuresSubtitle}</p>
                 </div>
 
                 <div className="account-cards">
-                    <div
-                        className={
-                            selectedType === "personal"
-                                ? "account-card selected"
-                                : "account-card"
-                        }
-                    >
-                        <div className="account-icon">👤</div>
-                        <h3>{t.personalTitle}</h3>
-                        <p>{t.personalText}</p>
-                        <button onClick={() => chooseAccount("personal")}>
-                            {t.choosePersonal}
-                        </button>
+                    <div className="account-card">
+                        <div className="account-icon">📊</div>
+                        <h3>{t.dashboardTitle}</h3>
+                        <p>{t.dashboardText}</p>
+                        <button onClick={goToRegister}>{t.getStarted}</button>
                     </div>
 
-                    <div
-                        className={
-                            selectedType === "business"
-                                ? "account-card selected"
-                                : "account-card"
-                        }
-                    >
-                        <div className="account-icon">💼</div>
-                        <h3>{t.businessTitle}</h3>
-                        <p>{t.businessText}</p>
-                        <button onClick={() => chooseAccount("business")}>
-                            {t.chooseBusiness}
-                        </button>
+                    <div className="account-card">
+                        <div className="account-icon">📈</div>
+                        <h3>{t.analyticsTitle}</h3>
+                        <p>{t.analyticsText}</p>
+                        <button onClick={goToRegister}>{t.getStarted}</button>
                     </div>
 
-                    <div
-                        className={
-                            selectedType === "kids" ? "account-card selected" : "account-card"
-                        }
-                    >
-                        <div className="account-icon">🧒</div>
-                        <h3>{t.kidsTitle}</h3>
-                        <p>{t.kidsText}</p>
-                        <button onClick={() => chooseAccount("kids")}>
-                            {t.chooseKids}
-                        </button>
+                    <div className="account-card">
+                        <div className="account-icon">📄</div>
+                        <h3>{t.exportTitle}</h3>
+                        <p>{t.exportText}</p>
+                        <button onClick={goToRegister}>{t.getStarted}</button>
+                    </div>
+
+                    <div className="account-card">
+                        <div className="account-icon">🔐</div>
+                        <h3>{t.securityTitle}</h3>
+                        <p>{t.securityText}</p>
+                        <button onClick={goToRegister}>{t.getStarted}</button>
                     </div>
                 </div>
             </section>
 
-            <section id="features" className="features-section">
-                <h2>{t.featuresTitle}</h2>
+            <section id="why-cashflow" className="features-section">
+                <h2>{t.whyTitle}</h2>
 
-                <div className="features-grid">
-                    <div className="feature-box">📊 {t.feature1}</div>
-                    <div className="feature-box">📄 {t.feature2}</div>
-                    <div className="feature-box">🎯 {t.feature3}</div>
-                    <div className="feature-box">🌐 {t.feature4}</div>
+                <div className="features-grid why-grid">
+                    <div className="feature-box">✅ {t.why1}</div>
+                    <div className="feature-box">✅ {t.why2}</div>
+                    <div className="feature-box">✅ {t.why3}</div>
+                    <div className="feature-box">✅ {t.why4}</div>
+                    <div className="feature-box">✅ {t.why5}</div>
+                    <div className="feature-box">✅ {t.why6}</div>
+                    <div className="feature-box">✅ {t.why7}</div>
                 </div>
             </section>
+
+            <footer className="welcome-footer">
+                <h3>CashFlow © 2026</h3>
+                <p>{t.footerText}</p>
+            </footer>
         </div>
     );
 }

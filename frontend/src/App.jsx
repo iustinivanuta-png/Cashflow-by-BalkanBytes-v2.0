@@ -1,56 +1,106 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+
 import Dashboard from "./pages/Dashboard";
 import AuthPage from "./pages/AuthPage";
 import WelcomePage from "./pages/WelcomePage";
 import Transactions from "./pages/Transactions";
-import Reports from "./pages/Reports";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Savings from "./pages/Savings";
+
+
+
+import AppLayout from "./components/AppLayout";
+
+import { LanguageProvider } from "./LanguageContext";
+
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
     const token = localStorage.getItem("token");
 
     return (
-        <Routes>
-            <Route path="/welcome" element={<WelcomePage />} />
-            <Route path="/oauth-success" element={<OAuthSuccess />} />
+        <LanguageProvider>
+            <Routes>
+                <Route
+                    path="/welcome"
+                    element={<WelcomePage />}
+                />
 
-            <Route
-                path="/auth"
-                element={!token ? <AuthPage /> : <Navigate to="/" replace />}
-            />
+                <Route
+                    path="/oauth-success"
+                    element={<OAuthSuccess />}
+                />
 
-            <Route
-                path="/"
-                element={token ? <Dashboard /> : <Navigate to="/welcome" replace />}
-            />
+                <Route
+                    path="/privacy"
+                    element={<PrivacyPolicy />}
+                />
 
-            <Route
-                path="/transactions"
-                element={token ? <Transactions /> : <Navigate to="/auth" replace />}
-            />
+                <Route
+                    path="/auth"
+                    element={
+                        !token ? (
+                            <AuthPage />
+                        ) : (
+                            <Navigate to="/" replace />
+                        )
+                    }
+                />
 
-            <Route
-                path="/reports"
-                element={token ? <Reports /> : <Navigate to="/auth" replace />}
-            />
+                <Route
+                    element={
+                        token ? (
+                            <AppLayout />
+                        ) : (
+                            <Navigate to="/auth" replace />
+                        )
+                    }
+                >
+                    <Route
+                        path="/"
+                        element={<Dashboard />}
+                    />
 
-            <Route
-                path="/analytics"
-                element={token ? <Analytics /> : <Navigate to="/auth" replace />}
-            />
+                    <Route
+                        path="/transactions"
+                        element={<Transactions />}
+                    />
 
-            <Route
-                path="/settings"
-                element={token ? <Settings /> : <Navigate to="/auth" replace />}
-            />
+                    <Route
+                        path="/savings"
+                        element={<Savings />}
+                    />
 
-            <Route path="*" element={<Navigate to="/welcome" replace />} />
+                    <Route
+                        path="/analytics"
+                        element={<Analytics />}
+                    />
 
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-        </Routes>
+                    <Route
+                        path="/settings"
+                        element={<Settings />}
+                    />
+                </Route>
+
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+
+                <Route
+                    path="/reset-password/:token"
+                    element={<ResetPassword />}
+                />
+
+                <Route
+                    path="*"
+                    element={<Navigate to="/welcome" replace />}
+                />
+
+               
+            </Routes>
+        </LanguageProvider>
     );
 }
 

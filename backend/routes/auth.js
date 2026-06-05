@@ -7,11 +7,24 @@ const FacebookStrategy = require("passport-facebook").Strategy;
 
 const User = require("../models/User");
 const auth = require("../middleware/auth");
+const crypto = require("crypto");
+
+const nodemailer = require("nodemailer");
+
+
 
 const router = express.Router();
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:4000";
+
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
 function createToken(user) {
     return jwt.sign(
@@ -233,6 +246,7 @@ router.get("/me", auth, async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
+                provider: user.provider,
                 createdAt: user.createdAt,
             },
         });
@@ -318,6 +332,110 @@ router.put("/change-password", auth, async (req, res) => {
         await user.save();
 
         res.json({ message: "Parola a fost schimbată cu succes" });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+router.post("/forgot-password", async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: "Introdu email-ul" });
+        }
+
+        const user = await User.findOne({
+            email: email.toLowerCase().trim(),
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: "Nu există cont cu acest email" });
+        }
+
+        if (user.provider !== "local") {
+            return res.status(400).json({
+                error: "Acest cont folosește autentificare Google/Facebook. Parola se gestionează din contul respectiv.",
+            });
+        }
+
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minute
+
+        await user.save();
+
+        const resetLink = `${FRONTEND_URL}/reset-password/${resetToken}`;
+
+        await transporter.sendMail({
+            from: `"CashFlow" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: "Resetare parolă CashFlow",
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h2>Resetare parolă CashFlow</h2>
+                    <p>Ai solicitat resetarea parolei.</p>
+                    <p>Apasă pe butonul de mai jos pentru a seta o parolă nouă:</p>
+
+                    <a href="${resetLink}"
+                       style="display:inline-block;padding:12px 18px;background:#7c3aed;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
+                        Resetează parola
+                    </a>
+
+                    <p style="margin-top:20px;color:#666;">
+                        Linkul expiră în 15 minute.
+                    </p>
+
+                    <p style="color:#666;">
+                        Dacă nu ai solicitat această acțiune, ignoră acest email.
+                    </p>
+                </div>
+            `,
+        });
+
+        res.json({
+            message: "Linkul de resetare a fost trimis pe email.",
+        });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+router.post("/reset-password/:token", async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password, confirmPassword } = req.body;
+
+        if (!password || !confirmPassword) {
+            return res.status(400).json({ error: "Completează toate câmpurile" });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ error: "Parola trebuie să aibă minim 6 caractere" });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({ error: "Parolele nu se potrivesc" });
+        }
+
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ error: "Link invalid sau expirat" });
+        }
+
+        user.password = await bcrypt.hash(password, 10);
+        user.provider = "local";
+        user.resetPasswordToken = "";
+        user.resetPasswordExpires = null;
+
+        await user.save();
+        console.log("EMAIL ROUTE NOUA FUNCTIONEAZA");
+        res.json({ message: "Parola a fost resetată cu succes" });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }

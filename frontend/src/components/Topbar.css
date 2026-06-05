@@ -1,0 +1,110 @@
+.topbar {
+    height: 84px;
+    min-height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background: rgba(2, 8, 23, 0.96);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.topbar-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: white;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.topbar-add-btn {
+    height: 44px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #7c4dff, #6d5dfc);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+    .topbar-add-btn:hover {
+        transform: translateY(-1px);
+    }
+
+.topbar-icon-btn {
+    height: 44px;
+    min-width: 44px;
+    padding: 0 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    color: white;
+    cursor: pointer;
+}
+
+.topbar-profile {
+    height: 52px;
+    padding: 0 16px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+}
+
+.topbar-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #5eead4, #60a5fa);
+    color: white;
+    font-weight: 800;
+}
+
+.topbar-user {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+    .topbar-user strong {
+        color: white;
+        font-size: 0.92rem;
+    }
+
+    .topbar-user span {
+        color: #94a3b8;
+        font-size: 0.76rem;
+    }
+.v0-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #60a5fa, #22c55e);
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1;
+}

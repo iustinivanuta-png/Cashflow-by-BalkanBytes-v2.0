@@ -1,0 +1,425 @@
+.savings-header-card {
+    margin-bottom: 24px;
+    padding: 28px 30px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.93), rgba(30, 41, 59, 0.74));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s ease;
+}
+
+    .savings-header-card:hover {
+        transform: translateY(-2px);
+    }
+
+.savings-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 22px;
+}
+
+    .savings-header-content h1 {
+        margin: 0;
+        color: #f8fafc;
+        font-size: 2rem;
+        font-weight: 900;
+    }
+
+    .savings-header-content p {
+        margin: 8px 0 0;
+        color: #94a3b8;
+        font-weight: 700;
+    }
+
+.savings-add-btn {
+    height: 46px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 14px 30px rgba(99, 102, 241, 0.28);
+    transition: 0.22s ease;
+}
+
+    .savings-add-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.07);
+    }
+
+.savings-empty-state {
+    min-height: 360px;
+    padding: 46px 24px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.93), rgba(30, 41, 59, 0.74));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+}
+
+.savings-empty-icon {
+    font-size: 4rem;
+}
+
+.savings-empty-state h2 {
+    margin: 0;
+    color: #f8fafc;
+}
+
+.savings-empty-state p {
+    margin: 0 0 12px;
+    color: #94a3b8;
+    max-width: 430px;
+    font-weight: 700;
+}
+
+.savings-hero-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 165px;
+    padding: 24px 28px;
+    border-radius: 24px;
+    background: radial-gradient( circle at 88% 50%, rgba(124, 58, 237, 0.55), transparent 28% ), linear-gradient( 135deg, #10b981 0%, #2563eb 55%, #4f46e5 100% );
+    border: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 24px 60px rgba(0,0,0,.25);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    transition: .25s ease;
+}
+
+    .savings-hero-card:hover {
+        transform: translateY(-3px);
+    }
+
+.savings-hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+
+.savings-label {
+    display: block;
+    color: #e0f2fe;
+    font-weight: 900;
+    margin-bottom: 14px;
+}
+
+.savings-hero-card h2 {
+    margin: 0;
+    color: white;
+    font-size: clamp( 2rem, 4vw, 3rem );
+    line-height: 1;
+    letter-spacing: -2px;
+}
+
+.savings-growth {
+    margin: 10px 0 18px;
+    color: #bbf7d0;
+    font-weight: 900;
+}
+
+.savings-progress-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.savings-progress {
+    height: 13px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(15, 23, 42, 0.34);
+}
+
+    .savings-progress.small {
+        height: 10px;
+        margin: 18px 0;
+    }
+
+.savings-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #22c55e, #4ade80);
+    transition: width 0.7s ease;
+}
+
+.savings-progress-row strong,
+.savings-hero-card small {
+    color: white;
+    font-weight: 900;
+}
+
+.savings-hero-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
+    display: grid;
+    place-items: center;
+    font-size: 3rem;
+    background: rgba(255,255,255,.1);
+    transition: .25s ease;
+}
+.savings-hero-card:hover .savings-hero-icon {
+    transform: scale(1.07) rotate(-4deg);
+}
+
+.savings-goals-grid {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.savings-goal-card {
+    padding: 18px;
+    border-radius: 22px;
+    background: linear-gradient( 135deg, rgba(15,23,42,.93), rgba(30,41,59,.74) );
+    border: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 18px 40px rgba(0,0,0,.18);
+    transition: .25s ease;
+}
+
+    .savings-goal-card:hover {
+        transform: translateY(-3px);
+    }
+
+.savings-goal-icon {
+    font-size: 2rem;
+}
+
+.savings-goal-card h3 {
+    margin: 14px 0 8px;
+    color: #f8fafc;
+}
+
+.savings-goal-card p {
+    margin: 0;
+    color: #94a3b8;
+    font-weight: 800;
+}
+
+.savings-goal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+}
+
+    .savings-goal-footer strong {
+        color: #f8fafc;
+    }
+
+    .savings-goal-footer button {
+        height: 38px;
+        padding: 0 14px;
+        border: none;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+        .savings-goal-footer button:hover {
+            background: rgba(255, 255, 255, 0.16);
+            transform: translateY(-1px);
+        }
+
+.savings-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(2, 6, 23, 0.68);
+    backdrop-filter: blur(12px);
+}
+
+.savings-modal {
+    position: relative;
+    width: min(460px, 100%);
+    padding: 26px;
+    border-radius: 24px;
+    background: rgba(15, 23, 42, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 34px 90px rgba(0, 0, 0, 0.56);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    animation: savingsModalIn 0.22s ease;
+}
+
+    .savings-modal h2 {
+        margin: 0 34px 8px 0;
+        color: #f8fafc;
+    }
+
+    .savings-modal input {
+        height: 52px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(15, 23, 42, 0.72);
+        color: white;
+        padding: 0 16px;
+        outline: none;
+        font-weight: 800;
+    }
+
+        .savings-modal input:focus {
+            border-color: rgba(124, 58, 237, 0.72);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.14);
+        }
+
+.savings-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: #f8fafc;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+.savings-modal-submit {
+    height: 52px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.savings-error {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #fecaca;
+    font-weight: 800;
+}
+
+body.light-mode .savings-header-card,
+body.light-mode .savings-empty-state,
+body.light-mode .savings-goal-card {
+    background: rgba(255, 255, 255, 0.74);
+    color: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.78);
+    box-shadow: 0 20px 55px rgba(99, 102, 241, 0.1);
+}
+
+    body.light-mode .savings-header-content h1,
+    body.light-mode .savings-empty-state h2,
+    body.light-mode .savings-goal-card h3,
+    body.light-mode .savings-goal-footer strong {
+        color: #0f172a;
+    }
+
+    body.light-mode .savings-header-content p,
+    body.light-mode .savings-empty-state p,
+    body.light-mode .savings-goal-card p {
+        color: #64748b;
+    }
+
+body.light-mode .savings-hero-card {
+    background: radial-gradient(circle at 88% 50%, rgba(124, 58, 237, 0.24), transparent 30%), linear-gradient(135deg, #34d399 0%, #60a5fa 55%, #818cf8 100%);
+    box-shadow: 0 20px 55px rgba(99, 102, 241, 0.12);
+}
+
+body.light-mode .savings-modal {
+    background: rgba(255, 255, 255, 0.98);
+    color: #111827;
+}
+
+    body.light-mode .savings-modal h2 {
+        color: #0f172a;
+    }
+
+    body.light-mode .savings-modal input {
+        background: rgba(255, 255, 255, 0.8);
+        color: #111827;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+body.light-mode .savings-modal-close {
+    color: #475569;
+}
+
+@keyframes savingsModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .savings-header-content,
+    .savings-hero-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .savings-add-btn {
+        width: 100%;
+    }
+
+    .savings-hero-icon {
+        width: 84px;
+        height: 84px;
+        border-radius: 26px;
+        font-size: 3rem;
+    }
+
+    .savings-goal-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+        .savings-goal-footer button {
+            width: 100%;
+        }
+}
+
+.savings-goal-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.savings-delete-btn {
+    background: rgba(239,68,68,.12) !important;
+    border: 1px solid rgba(239,68,68,.25) !important;
+    color: #fecaca !important;
+}
+
+    .savings-delete-btn:hover {
+        background: rgba(239,68,68,.2) !important;
+    }
+
+body.light-mode .savings-delete-btn {
+    color: #dc2626 !important;
+    background: rgba(239,68,68,.08) !important;
+}

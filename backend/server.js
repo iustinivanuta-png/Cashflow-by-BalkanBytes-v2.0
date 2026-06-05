@@ -16,8 +16,8 @@ app.use(express.json());
 app.use(passport.initialize());
 
 app.use("/auth", authRoute);
-app.use("/transactions", transactionsRoute);
-app.use("/summary", summaryRoute);
+app.use("/api/transactions", transactionsRoute);
+app.use("/api/summary", summaryRoute);
 
 mongoose
     .connect(process.env.MONGO_URL)

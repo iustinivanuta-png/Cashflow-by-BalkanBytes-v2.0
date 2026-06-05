@@ -20,14 +20,37 @@ router.post("/", auth, async (req, res) => {
 // GET all transactions
 router.get("/", auth, async (req, res) => {
   try {
-    const transactions = await Transaction.find({ userId: req.user.id }).sort({ date: -1 });
+      const transactions = await Transaction.find({
+          userId: req.user.id,
+      }).sort({
+          date: -1,
+          createdAt: -1,
+      });
     res.json(transactions);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// DELETE by id
+
+
+//stergere tranzactii
+router.delete("/all", auth, async (req, res) => {
+    try {
+        const result = await Transaction.deleteMany({
+            userId: req.user.id,
+        });
+
+        res.json({
+            ok: true,
+            message: "Toate datele au fost șterse cu succes",
+            deletedCount: result.deletedCount,
+        });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
 router.delete("/:id", auth, async (req, res) => {
   try {
     const raw = String(req.params.id);
